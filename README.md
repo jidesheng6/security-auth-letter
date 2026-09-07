@@ -2,7 +2,7 @@
 
 本地 / GitHub Pages 可用的离线网页：填写或随机生成授权信息，预览后导出 **PNG** / **PDF**，或打印。
 
-在线演示：部署 Pages 后见仓库 About 中的网站链接。
+在线演示：https://jidesheng6.github.io/security-auth-letter/
 
 ## 使用
 
