@@ -1,0 +1,1588 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>安全测试授权书生成</title>
+  <link rel="stylesheet" href="./fonts/fonts.css" />
+
+  <style id="local-faces">
+    @font-face { font-family: "Noto Sans SC"; font-weight: 400; font-display: swap; src: url("./fonts/noto-sans-sc.woff2") format("woff2"); }
+    @font-face { font-family: "Noto Serif SC"; font-weight: 500; font-display: swap; src: url("./fonts/noto-serif-sc.woff2") format("woff2"); }
+    @font-face { font-family: "Ma Shan Zheng"; font-weight: 400; font-display: swap; src: url("./fonts/mashan.woff2") format("woff2"); }
+    @font-face { font-family: "Zhi Mang Xing"; font-weight: 400; font-display: swap; src: url("./fonts/zhimang.woff2") format("woff2"); }
+    @font-face { font-family: "Long Cang"; font-weight: 400; font-display: swap; src: url("./fonts/longcang.woff2") format("woff2"); }
+    @font-face { font-family: "Liu Jian Mao Cao"; font-weight: 400; font-display: swap; src: url("./fonts/liujian.woff2") format("woff2"); }
+    @font-face { font-family: "Yozai"; font-weight: 400; font-display: swap; src: url("./fonts/yozai.woff2") format("woff2"); }
+  </style>
+
+<style>
+    :root {
+      --ink: #1a2332;
+      --ink-soft: #3d4f66;
+      --accent: #8b1e1e;
+      --accent-hover: #6f1717;
+      --seal: #c41e3a;
+      --paper-bg: #c5cdd8;
+      --panel: #f4f6f8;
+      --line: #c8d0da;
+      --text: #1e293b;
+      --muted: #64748b;
+      --danger: #b91c1c;
+      --white: #ffffff;
+      --shadow: 0 14px 42px rgba(26, 35, 50, 0.14);
+      --ui: "Noto Sans SC", "Microsoft YaHei", "PingFang SC", sans-serif;
+      --doc: "Noto Serif SC", "Songti SC", "SimSun", serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      font-family: var(--ui);
+      color: var(--text);
+      background:
+        radial-gradient(900px 420px at 90% 0%, rgba(139, 30, 30, 0.08), transparent 50%),
+        linear-gradient(165deg, #e4e9f0 0%, var(--paper-bg) 55%, #b8c2d0 100%);
+    }
+
+    .app {
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: 24px 18px 48px;
+    }
+
+    .hero { margin-bottom: 18px; }
+    .hero h1 {
+      margin: 0 0 6px;
+      font-family: var(--doc);
+      font-size: clamp(1.45rem, 2.2vw, 1.9rem);
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: 0.06em;
+    }
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.55;
+      max-width: 52em;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(320px, 420px) 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid rgba(200, 208, 218, 0.95);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+      max-height: calc(100vh - 110px);
+      overflow: auto;
+    }
+
+    .panel h2 {
+      margin: 0 0 12px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      color: var(--ink-soft);
+    }
+
+    .section-label {
+      margin: 16px 0 10px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+    }
+    .section-label:first-of-type {
+      margin-top: 4px;
+      padding-top: 0;
+      border-top: 0;
+    }
+
+    .field { margin-bottom: 12px; }
+    .field label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 0.84rem;
+      font-weight: 500;
+      color: var(--ink);
+    }
+    .field .hint {
+      margin-top: 4px;
+      font-size: 0.74rem;
+      color: var(--muted);
+    }
+    .req::after { content: " *"; color: var(--danger); }
+
+    .row-input {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: stretch;
+    }
+    .row-input.triple {
+      grid-template-columns: 1fr auto auto;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    select {
+      width: 100%;
+      padding: 9px 11px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: var(--white);
+      font: inherit;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    input:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(139, 30, 30, 0.12);
+    }
+
+    .btn-mini {
+      padding: 0 12px;
+      border-radius: 7px;
+      background: #e8edf3;
+      color: var(--ink);
+      font-size: 0.78rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .btn-mini:hover { background: #d8e0ea; }
+
+    .check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 2px 0 10px;
+      font-size: 0.88rem;
+      color: var(--ink);
+      cursor: pointer;
+      user-select: none;
+    }
+    .check input { width: 15px; height: 15px; accent-color: var(--accent); }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .actions .full { grid-column: 1 / -1; }
+
+    button {
+      font: inherit;
+      border: 0;
+      border-radius: 7px;
+      padding: 10px 12px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.15s, transform 0.1s;
+    }
+    button:active { transform: translateY(1px); }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-secondary { background: var(--ink); color: #fff; }
+    .btn-secondary:hover { background: #111821; }
+    .btn-ghost { background: #e2e8f0; color: var(--ink); }
+    .btn-ghost:hover { background: #cbd5e1; }
+    .btn-rand {
+      background: linear-gradient(180deg, #f8fafc, #e8eef5);
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+    .btn-rand:hover { background: #dde5ef; }
+
+    .msg {
+      min-height: 1.2em;
+      margin-top: 10px;
+      font-size: 0.8rem;
+      color: var(--danger);
+    }
+    .msg.ok { color: #0f766e; }
+
+    .preview-wrap {
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.28);
+      border: 1px dashed rgba(61, 79, 102, 0.28);
+      border-radius: 12px;
+      overflow: auto;
+      max-height: calc(100vh - 120px);
+    }
+
+    .sheet {
+      overflow: hidden;
+      width: min(100%, 794px);
+      margin: 0 auto;
+      background: #fffef9;
+      color: #111;
+      box-shadow: 0 10px 32px rgba(15, 23, 42, 0.16);
+      padding: 40px 48px 44px;
+      font-family: var(--doc);
+      font-size: 13.5px;
+      line-height: 1.72;
+      position: relative;
+      border: 1px solid #d4d4d4;
+    }
+    .sheet::before {
+      content: "";
+      position: absolute;
+      inset: 9px;
+      border: 1.5px double #8b1e1e;
+      pointer-events: none;
+      opacity: 0.5;
+    }
+    .sheet-inner { position: relative; z-index: 1; }
+
+    /* 扫描件外观 */
+    .sheet.scan-look {
+      background:
+        radial-gradient(120% 80% at 50% 0%, rgba(255,255,255,0.35), transparent 55%),
+        linear-gradient(180deg, #f3efe6 0%, #ebe4d6 45%, #e6dfd0 100%);
+      box-shadow:
+        0 18px 40px rgba(0, 0, 0, 0.28),
+        inset 0 0 80px rgba(80, 60, 30, 0.08);
+      filter: contrast(0.94) brightness(0.98) saturate(0.88);
+      transform: rotate(-0.55deg);
+      border-color: #c4b9a6;
+    }
+    .sheet.scan-look::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2;
+      opacity: 0.22;
+      mix-blend-mode: multiply;
+      background-image:
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E"),
+        linear-gradient(115deg, transparent 40%, rgba(255,255,255,0.18) 48%, transparent 56%);
+      background-size: 180px 180px, 100% 100%;
+    }
+    .sheet.scan-look .sheet-inner {
+      filter: grayscale(0.08);
+    }
+
+    .meta-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 8px;
+      font-family: var(--ui);
+      font-size: 12px;
+      color: #475569;
+    }
+    .doc-no { color: var(--seal); font-weight: 600; letter-spacing: 0.04em; }
+    .doc-secret {
+      color: var(--seal);
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      font-size: 13px;
+    }
+
+    .sheet h1 {
+      margin: 8px 0 6px;
+      text-align: center;
+      font-size: 25px;
+      font-weight: 700;
+      letter-spacing: 0.34em;
+      text-indent: 0.34em;
+      color: #0f172a;
+    }
+    .title-line {
+      width: 70%;
+      height: 2px;
+      margin: 0 auto 16px;
+      background: linear-gradient(90deg, transparent, var(--seal), transparent);
+      opacity: 0.75;
+    }
+
+    .parties {
+      margin: 0 0 14px;
+      border: 1px solid #cbd5e1;
+      background: rgba(250, 251, 252, 0.9);
+      font-family: var(--ui);
+      font-size: 12.5px;
+    }
+    .parties .row {
+      display: grid;
+      grid-template-columns: 84px 1fr;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .parties .row:last-child { border-bottom: 0; }
+    .parties .k {
+      padding: 6px 10px;
+      background: #f1f5f9;
+      color: #334155;
+      font-weight: 600;
+      border-right: 1px solid #e2e8f0;
+    }
+    .parties .v {
+      padding: 6px 12px;
+      color: #0f172a;
+      word-break: break-all;
+    }
+
+    .sheet .lead { text-indent: 2em; margin: 0 0 12px; }
+    .sheet h3 { margin: 14px 0 6px; font-size: 14.5px; font-weight: 700; }
+    .sheet p { margin: 0 0 6px; text-align: justify; }
+    .sheet ol { margin: 0 0 6px; padding-left: 1.8em; }
+    .sheet li { margin-bottom: 3px; }
+    .sheet .emph { font-weight: 700; }
+    .sheet code {
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92em;
+    }
+
+    .sign {
+      margin-top: 22px;
+      display: grid;
+      gap: 12px;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+    .sign-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+    .sign-block .label { font-size: 13px; margin-bottom: 2px; }
+    .sign-block .org {
+      font-family: var(--ui);
+      font-size: 11px;
+      color: #475569;
+      margin-bottom: 6px;
+    }
+    .sign-area {
+      border-bottom: 1px solid #334155;
+      min-height: 88px;
+      padding: 6px 4px 8px;
+    }
+    .hw-sign {
+      position: relative;
+      z-index: 2;
+      font-size: 36px;
+      line-height: 1.15;
+      color: #141414;
+      min-height: 44px;
+      padding: 8px 6px 4px;
+      transform: rotate(-2deg);
+      display: inline-block;
+      font-weight: 400 !important;
+    }
+    .hw-sign.font-mashan, .sign-id.font-mashan { font-family: "Ma Shan Zheng", "Zhi Mang Xing", cursive !important; }
+    .hw-sign.font-zhimang, .sign-id.font-zhimang { font-family: "Zhi Mang Xing", "Ma Shan Zheng", cursive !important; }
+    .hw-sign.font-longcang, .sign-id.font-longcang { font-family: "Long Cang", "Zhi Mang Xing", cursive !important; }
+    .hw-sign.font-liujian, .sign-id.font-liujian { font-family: "Liu Jian Mao Cao", "Ma Shan Zheng", cursive !important; }
+    .hw-sign.font-yozai, .sign-id.font-yozai { font-family: "Yozai", "Ma Shan Zheng", cursive !important; }
+    #fontImport { display:none; }
+    .font-import-row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin:6px 0 2px; }
+    .font-note { font-size:0.72rem; color:#64748b; line-height:1.4; margin:0 0 8px; }
+    .hw-sign.empty {
+      color: #cbd5e1;
+      font-size: 14px;
+      font-family: var(--ui) !important;
+      font-style: italic;
+      transform: none;
+      padding: 18px 4px;
+    }
+    .fp-stamp {
+      position: relative;
+      z-index: 1;
+      left: auto;
+      top: auto;
+      width: 72px;
+      height: 104px;
+      opacity: 0.92;
+      transform: rotate(10deg);
+      mix-blend-mode: multiply;
+      pointer-events: none;
+      flex-shrink: 0;
+      margin-left: 6px;
+    }
+    .sign-stack {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2px;
+      min-width: 160px;
+      min-height: 72px;
+      padding-right: 4px;
+    }
+    .sign-ink-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+    }
+    .hw-sign {
+      position: relative;
+      z-index: 2;
+    }
+    .sign-print {
+      font-family: "Noto Serif SC", "Songti SC", "SimSun", serif;
+      font-size: 12px;
+      color: #1e293b;
+      line-height: 1.4;
+    }
+    .sign-id {
+      font-size: 20px;
+      line-height: 1.2;
+      color: #111;
+      transform: rotate(-1deg);
+      display: inline-block;
+      letter-spacing: 0.02em;
+    }
+    .sign-meta {
+      font-family: var(--ui);
+      font-size: 10.5px;
+      color: #64748b;
+      margin-top: 2px;
+    }
+    .seal-paging {
+      right: -48px !important;
+      opacity: 0.95 !important;
+    }
+
+
+    .sign-block { position: relative; }
+    .org-wrap {
+      position: relative;
+      display: inline-block;
+      max-width: 100%;
+      min-height: 1.4em;
+      margin-bottom: 6px;
+      padding: 12px 22px 12px 10px;
+    }
+    .org-wrap .org { margin-bottom: 0; position: relative; z-index: 1; }
+    .seal-stamp {
+      position: absolute;
+      z-index: 2;
+      left: 42%;
+      top: 45%;
+      width: 112px;
+      height: 112px;
+      margin-left: -56px;
+      margin-top: -56px;
+      opacity: 0.9;
+      transform: rotate(-16deg);
+      mix-blend-mode: multiply;
+      pointer-events: none;
+    }
+    .sign-block:nth-child(2) .seal-stamp { transform: rotate(12deg); }
+    .seal-paging {
+      position: absolute;
+      z-index: 6;
+      right: -54px;
+      top: 36%;
+      width: 124px;
+      height: 124px;
+      opacity: 0.92;
+      mix-blend-mode: multiply;
+      pointer-events: none;
+      transform: rotate(3deg);
+    }
+    .seal-paging.seal-paging-b {
+      top: 56%;
+      right: -60px;
+      width: 116px;
+      height: 116px;
+      transform: rotate(-8deg);
+    }
+    .ph { color: #94a3b8; font-style: italic; }
+
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      .panel { max-height: none; }
+      .preview-wrap { max-height: none; }
+      .sheet { padding: 28px 22px 36px; }
+      .sheet.scan-look { transform: none; }
+      .sign-row { grid-template-columns: 1fr; }
+    }
+
+    @media print {
+      body { background: #fff; }
+      .hero, .form-panel, .preview-wrap {
+        box-shadow: none; border: 0; padding: 0; background: transparent;
+      }
+      .app { max-width: none; padding: 0; }
+      .layout { display: block; }
+      .form-panel { display: none !important; }
+      .preview-wrap { max-height: none; overflow: visible; }
+      .sheet {
+        width: 100%;
+        box-shadow: none;
+        border: 0;
+        padding: 10mm 12mm;
+        transform: none !important;
+        filter: none !important;
+      }
+      .sheet.scan-look {
+        filter: contrast(0.94) brightness(0.98) saturate(0.88) !important;
+      }
+      .sheet::before { inset: 2mm; }
+      .sign, .sign-row { page-break-inside: avoid; break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="hero">
+      <h1>安全测试授权书生成</h1>
+      <p>本地离线可用。支持随机公司/信用代码/编号/签字人；可选草书字体与手印；可切换扫描件外观。导出 PNG 图片或 PDF。</p>
+    </header>
+
+    <div class="layout">
+      <aside class="panel form-panel">
+        <h2>填写信息</h2>
+        <button type="button" class="btn-rand full" id="btnRandAll" style="width:100%;margin-bottom:12px;">一键随机填充全部</button>
+
+        <div class="section-label">文档信息</div>
+        <div class="field">
+          <label class="req" for="docNo">文档编号</label>
+          <div class="row-input">
+            <input id="docNo" type="text" placeholder="点击随机或手动填写" />
+            <button type="button" class="btn-mini" data-rand="docNo">随机</button>
+          </div>
+        </div>
+        <div class="field">
+          <label class="req" for="authDate">授权日期</label>
+          <input id="authDate" type="date" />
+        </div>
+        <label class="check">
+          <input id="scanLook" type="checkbox" />
+          <span>扫描件外观（纸质扫描效果）</span>
+        </label>
+        <label class="check">
+          <input id="showFingerprint" type="checkbox" checked />
+          <span>签字旁显示手印</span>
+        </label>
+        <label class="check">
+          <input id="showSeal" type="checkbox" />
+          <span>显示公章</span>
+        </label>
+        <div class="font-import-row">
+          <button type="button" class="btn-mini" id="btnImportFont">导入字体</button>
+          <input id="fontImport" type="file" accept=".ttf,.otf,.woff,.woff2,.ttc" multiple />
+        </div>
+        <p class="font-note">可将 .ttf / .otf / .woff2 放到 fonts/custom/ 后运行 python rescan-custom-fonts.py，或点「导入字体」；导入后出现在下拉框「已导入」。</p>
+
+        <div class="section-label">授权方</div>
+        <div class="field">
+          <label class="req" for="authorizer">公司名称</label>
+          <div class="row-input">
+            <input id="authorizer" type="text" placeholder="授权方公司全称" />
+            <button type="button" class="btn-mini" data-rand="authorizer">随机</button>
+          </div>
+        </div>
+        <div class="field">
+          <label class="req" for="authorizerCredit">统一社会信用代码</label>
+          <div class="row-input">
+            <input id="authorizerCredit" type="text" placeholder="18 位信用代码" />
+            <button type="button" class="btn-mini" data-rand="authorizerCredit">随机</button>
+          </div>
+        </div>
+        <div class="field">
+          <label class="req" for="authorizerSigner">签字人</label>
+          <div class="row-input">
+            <input id="authorizerSigner" type="text" placeholder="授权方签字人" />
+            <button type="button" class="btn-mini" data-rand="authorizerSigner">随机</button>
+          </div>
+        </div>
+        <div class="field">
+          <label class="req" for="authorizerId">签字人身份证号</label>
+          <div class="row-input">
+            <input id="authorizerId" type="text" placeholder="18 位身份证号" maxlength="18" />
+            <button type="button" class="btn-mini" data-rand="authorizerId">随机</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="authorizerFont">签字字体</label>
+          <div class="row-input">
+            <select id="authorizerFont"></select>
+            <button type="button" class="btn-mini" data-rand="authorizerFont">随机</button>
+          </div>
+        </div>
+
+        <div class="section-label">被授权方</div>
+        <div class="field">
+          <label class="req" for="authorizee">公司名称</label>
+          <div class="row-input">
+            <input id="authorizee" type="text" placeholder="被授权方公司全称" />
+            <button type="button" class="btn-mini" data-rand="authorizee">随机</button>
+          </div>
+        </div>
+        <div class="field">
+          <label class="req" for="authorizeeCredit">统一社会信用代码</label>
+          <div class="row-input">
+            <input id="authorizeeCredit" type="text" placeholder="18 位信用代码" />
+            <button type="button" class="btn-mini" data-rand="authorizeeCredit">随机</button>
+          </div>
+        </div>
+        <div class="field">
+          <label class="req" for="authorizeeSigner">签字人</label>
+          <div class="row-input">
+            <input id="authorizeeSigner" type="text" placeholder="被授权方签字人" />
+            <button type="button" class="btn-mini" data-rand="authorizeeSigner">随机</button>
+          </div>
+        </div>
+        <div class="field">
+          <label class="req" for="authorizeeId">签字人身份证号</label>
+          <div class="row-input">
+            <input id="authorizeeId" type="text" placeholder="18 位身份证号" maxlength="18" />
+            <button type="button" class="btn-mini" data-rand="authorizeeId">随机</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="authorizeeFont">签字字体</label>
+          <div class="row-input">
+            <select id="authorizeeFont"></select>
+            <button type="button" class="btn-mini" data-rand="authorizeeFont">随机</button>
+          </div>
+        </div>
+
+        <div class="section-label">目标程序</div>
+        <div class="field">
+          <label class="req" for="programName">程序名称</label>
+          <input id="programName" type="text" placeholder="例：某某 App / 某某系统" />
+        </div>
+        <label class="check">
+          <input id="isAndroid" type="checkbox" />
+          <span>目标为安卓应用（可填包名）</span>
+        </label>
+        <div class="field" id="packageField" hidden>
+          <label for="packageName">安卓包名（可选）</label>
+          <input id="packageName" type="text" placeholder="例：com.example.app" />
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn-primary" id="btnPng">下载 PNG 图片</button>
+          <button type="button" class="btn-secondary" id="btnPdf">下载 PDF</button>
+          <button type="button" class="btn-ghost full" id="btnPrint">打印</button>
+        </div>
+        <div class="hint" style="margin-top:8px;font-size:0.74rem;color:#64748b;line-height:1.45;">
+          组件与字体已内置本地。PNG / PDF 均按右侧预览整页导出（含签字、手印、扫描效果）。
+        </div>
+        <div class="msg" id="msg" aria-live="polite"></div>
+      </aside>
+
+      <section class="preview-wrap" aria-label="授权书预览">
+        <article class="sheet" id="sheet"></article>
+      </section>
+    </div>
+  </div>
+
+  <script src="./vendor/html2canvas.min.js"></script>
+  <script src="./vendor/jspdf.umd.min.js"></script>
+  <script>
+    (function () {
+      const $ = (id) => document.getElementById(id);
+
+      const SIGN_FONTS = [
+        { id: "mashan", label: "行楷 · 马善政", cssClass: "font-mashan", loadName: "Ma Shan Zheng", group: "内置开源" },
+        { id: "zhimang", label: "草书 · 志莽行书", cssClass: "font-zhimang", loadName: "Zhi Mang Xing", group: "内置开源" },
+        { id: "longcang", label: "狂草 · 龙藏", cssClass: "font-longcang", loadName: "Long Cang", group: "内置开源" },
+        { id: "liujian", label: "行草 · 流江毛草", cssClass: "font-liujian", loadName: "Liu Jian Mao Cao", group: "内置开源" },
+        { id: "yozai", label: "手写 · 悠哉", cssClass: "font-yozai", loadName: "Yozai", group: "内置开源" },
+      ];
+
+      // fonts/custom 下已有的字体（刷新页面前可用脚本重扫；或用导入按钮）
+      const CUSTOM_DIR_FONTS = [];
+
+      const customFonts = [];
+
+      function allFonts() {
+        return SIGN_FONTS.concat(CUSTOM_DIR_FONTS).concat(customFonts);
+      }
+
+
+      const els = {
+        docNo: $("docNo"),
+        authorizer: $("authorizer"),
+        authorizerCredit: $("authorizerCredit"),
+        authorizerSigner: $("authorizerSigner"),
+        authorizerId: $("authorizerId"),
+        authorizerFont: $("authorizerFont"),
+        authorizee: $("authorizee"),
+        authorizeeCredit: $("authorizeeCredit"),
+        authorizeeSigner: $("authorizeeSigner"),
+        authorizeeId: $("authorizeeId"),
+        authorizeeFont: $("authorizeeFont"),
+        programName: $("programName"),
+        isAndroid: $("isAndroid"),
+        packageField: $("packageField"),
+        packageName: $("packageName"),
+        authDate: $("authDate"),
+        scanLook: $("scanLook"),
+        showFingerprint: $("showFingerprint"),
+        showSeal: $("showSeal"),
+        sheet: $("sheet"),
+        msg: $("msg"),
+      };
+
+
+      function injectFontFace(f) {
+        const styleId = "face-" + f.id;
+        if (document.getElementById(styleId)) return;
+        if (!(f.blobUrl || f.url || (f.locals && f.locals.length))) return;
+        const style = document.createElement("style");
+        style.id = styleId;
+        let src = "";
+        if (f.blobUrl) src = `url("${f.blobUrl}")`;
+        else if (f.url) src = `url("${f.url}")`;
+        else src = f.locals.map((n) => `local("${n}")`).join(", ");
+        style.textContent = `@font-face{font-family:"${f.loadName}";font-weight:400;font-display:swap;src:${src};}`
+          + `.hw-sign.${f.cssClass},.sign-id.${f.cssClass}{font-family:"${f.loadName}",cursive!important;}`;
+        document.head.appendChild(style);
+      }
+
+      function rebuildFontSelects() {
+        const fonts = allFonts();
+        fonts.forEach(injectFontFace);
+        [els.authorizerFont, els.authorizeeFont].forEach((sel) => {
+          const cur = sel.value;
+          sel.innerHTML = "";
+          const groups = {};
+          fonts.forEach((f) => {
+            const g = f.group || "其它";
+            if (!groups[g]) {
+              const og = document.createElement("optgroup");
+              og.label = g;
+              groups[g] = og;
+              sel.appendChild(og);
+            }
+            const opt = document.createElement("option");
+            opt.value = f.id;
+            opt.textContent = f.label;
+            groups[g].appendChild(opt);
+          });
+          if ([...sel.querySelectorAll("option")].some((o) => o.value === cur)) sel.value = cur;
+          else sel.value = SIGN_FONTS[0].id;
+        });
+      }
+
+      rebuildFontSelects();
+      els.authorizerFont.value = "mashan";
+      els.authorizeeFont.value = "zhimang";
+
+
+      const REGIONS = [
+        "110000", "120000", "310000", "330100", "330200", "340100",
+        "370100", "370200", "420100", "440100", "440300", "500000",
+        "510100", "610100", "320100", "320500", "350100", "430100",
+      ];
+      const USCC_CHARS = "0123456789ABCDEFGHJKLMNPQRTUWXY";
+      const USCC_WEIGHTS = [1, 3, 9, 27, 81, 243, 729, 2187, 6561, 19683, 59049, 177147, 531441, 1594323, 4782969, 14348907, 43046721];
+      const CO_PREFIX = ["华信", "鼎盛", "远航", "云启", "星河", "智汇", "安澜", "博远", "锐科", "瀚海", "擎天", "玄甲", "青云", "昆仑", "凌霄", "启明", "拓维", "数安", "方圆", "中衡"];
+      const CO_MID = ["信息", "网络", "数据", "智能", "安全", "软件", "科技", "数字", "云计算", "互联"];
+      const CO_SUFFIX = ["有限公司", "科技有限公司", "技术有限公司", "网络科技有限公司", "信息科技有限公司", "股份有限公司"];
+      const SURNAMES = ["王", "李", "张", "刘", "陈", "杨", "赵", "黄", "周", "吴", "徐", "孙", "胡", "朱", "高", "林", "何", "郭", "马", "罗", "梁", "宋", "郑", "谢", "韩", "唐", "冯", "于", "董", "萧"];
+      const GIVEN = ["伟", "芳", "娜", "敏", "静", "丽", "强", "磊", "军", "洋", "勇", "艳", "杰", "涛", "明", "超", "秀英", "霞", "平", "刚", "桂英", "建华", "文", "辉", "力", "浩", "宇", "欣", "晨", "博", "俊", "凯", "瑞", "轩", "涵"];
+
+      function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+      function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+      function randCompany() { return pick(CO_PREFIX) + pick(CO_MID) + pick(CO_SUFFIX); }
+      function randPerson() {
+        const given = Math.random() < 0.55 ? pick(GIVEN) : pick(GIVEN).charAt(0) + pick(GIVEN).charAt(0);
+        return pick(SURNAMES) + given;
+      }
+      function randIdNo() {
+        // 简易校验位合法的 18 位身份证号（演示用）
+        const area = pick(["110101","310101","440106","330106","320102","420102","510104","500103"]);
+        const year = String(randInt(1975, 1999));
+        const month = String(randInt(1, 12)).padStart(2, "0");
+        const day = String(randInt(1, 28)).padStart(2, "0");
+        const seq = String(randInt(0, 999)).padStart(3, "0");
+        const body17 = area + year + month + day + seq;
+        const weights = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2];
+        const codes = "10X98765432";
+        let sum = 0;
+        for (let i = 0; i < 17; i++) sum += parseInt(body17[i], 10) * weights[i];
+        return body17 + codes[sum % 11];
+      }
+
+      function usccChecksum(body17) {
+        let sum = 0;
+        for (let i = 0; i < 17; i++) sum += USCC_CHARS.indexOf(body17[i]) * USCC_WEIGHTS[i];
+        const logic = 31 - (sum % 31);
+        return USCC_CHARS[logic === 31 ? 0 : logic];
+      }
+      function randCreditCode() {
+        let body = "91" + pick(REGIONS);
+        while (body.length < 17) body += USCC_CHARS[randInt(0, USCC_CHARS.length - 1)];
+        return body + usccChecksum(body);
+      }
+      function todayISO() {
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      }
+      function randDocNo(dateIso) {
+        const d = (dateIso || todayISO()).replace(/-/g, "");
+        return `STA-${d}-${randInt(100, 999)}-${Math.random().toString(16).slice(2, 8).toUpperCase()}`;
+      }
+      function formatDateCN(iso) {
+        if (!iso) return "";
+        const [y, m, d] = iso.split("-");
+        return `${y}年${Number(m)}月${Number(d)}日`;
+      }
+      function escapeHtml(s) {
+        return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+      }
+      function fontById(id) {
+        return allFonts().find((f) => f.id === id) || SIGN_FONTS[0];
+      }
+      function hashSeed(str) {
+        let h = 2166136261;
+        const s = String(str || "seed");
+        for (let i = 0; i < s.length; i++) {
+          h ^= s.charCodeAt(i);
+          h = Math.imul(h, 16777619);
+        }
+        return h >>> 0;
+      }
+      function mulberry32(a) {
+        return function () {
+          let t = (a += 0x6d2b79f5);
+          t = Math.imul(t ^ (t >>> 15), t | 1);
+          t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+
+function drawFingerprint(canvas, seedText) {
+        const ctx = canvas.getContext("2d");
+        const W = canvas.width;
+        const H = canvas.height;
+        const rnd = mulberry32(hashSeed(String(seedText) + "-thumb-v4"));
+        ctx.clearRect(0, 0, W, H);
+
+        const cx = W * 0.5 + (rnd() - 0.5) * W * 0.02;
+        const cy = H * 0.54 + (rnd() - 0.5) * H * 0.02;
+        const rx = W * (0.27 + rnd() * 0.03);
+        const ry = H * (0.43 + rnd() * 0.04);
+        const rot = (rnd() - 0.5) * 0.22;
+        const pattern = Math.floor(rnd() * 3);
+
+        function rgba(a) {
+          const r = 195 + Math.floor(rnd() * 35);
+          const g = 6 + Math.floor(rnd() * 20);
+          const b = 16 + Math.floor(rnd() * 26);
+          return `rgba(${r},${g},${b},${a})`;
+        }
+
+        const layer = document.createElement("canvas");
+        layer.width = W;
+        layer.height = H;
+        const L = layer.getContext("2d");
+        L.translate(cx, cy);
+        L.rotate(rot);
+        L.lineCap = "round";
+        L.lineJoin = "round";
+        const coreY = (rnd() - 0.5) * ry * 0.1;
+
+        function strokeBroken(points, width, alpha) {
+          if (points.length < 2) return;
+          L.strokeStyle = rgba(alpha);
+          L.lineWidth = width;
+          L.beginPath();
+          let drawing = false;
+          for (let i = 0; i < points.length; i++) {
+            if (rnd() < 0.04) { drawing = false; continue; }
+            const p = points[i];
+            if (!drawing) { L.moveTo(p[0], p[1]); drawing = true; }
+            else L.lineTo(p[0], p[1]);
+          }
+          L.stroke();
+        }
+
+        if (pattern === 0) {
+          for (let turn = 0; turn < 12; turn++) {
+            const pts = [];
+            for (let a = 0; a < Math.PI * 2.4; a += 0.05) {
+              const t = turn + a / (Math.PI * 2);
+              const rr = 4 + t * (Math.min(rx, ry) * 0.082);
+              const wob = Math.sin(a * 5 + turn) * 1.8 + (rnd() - 0.5);
+              pts.push([
+                Math.cos(a + turn * 0.4) * (rr * (rx / ry) * 1.2 + wob * 0.25),
+                Math.sin(a + turn * 0.4) * (rr + wob * 0.2) + coreY
+              ]);
+            }
+            strokeBroken(pts, 1.6 + rnd() * 1.7, 0.42 + rnd() * 0.4);
+          }
+        } else {
+          const dir = pattern === 1 ? -1 : 1;
+          for (let i = 0; i < 32; i++) {
+            const pts = [];
+            for (let t = -1.2; t <= 1.2; t += 0.03) {
+              const arch = Math.sin(((t + 1.2) / 2.4) * Math.PI);
+              pts.push([
+                dir * (7 + i * 1.1) * arch + t * rx * 0.1 + Math.sin(t * 7 + i) * 1.3,
+                -Math.cos(t * Math.PI * 0.9) * (ry * 0.11 + i * 3.5) + coreY + i * 1.7 + Math.cos(t * 4) * 1.2
+              ]);
+            }
+            strokeBroken(pts, 1.5 + rnd() * 1.6, 0.38 + rnd() * 0.4);
+          }
+        }
+
+        for (let i = 0; i < 28; i++) {
+          const k = 0.26 + i * 0.027;
+          const pts = [];
+          for (let a = -Math.PI * 0.95; a <= Math.PI * 0.95; a += 0.035) {
+            const tip = 0.8 + 0.2 * ((Math.sin(a) + 1) / 2);
+            const wob = Math.sin(a * 7 + i) * 2.4 + (rnd() - 0.5) * 1.5;
+            pts.push([
+              Math.cos(a) * rx * k * tip + wob * 0.3,
+              Math.sin(a) * ry * k + coreY * 0.2 + wob * 0.35
+            ]);
+          }
+          strokeBroken(pts, 1.35 + rnd() * 1.45, 0.3 + rnd() * 0.42);
+        }
+
+        for (let i = 0; i < 900; i++) {
+          const a = rnd() * Math.PI * 2;
+          const rad = Math.pow(rnd(), 0.5);
+          const tip = 0.8 + 0.2 * ((Math.sin(a) + 1) / 2);
+          L.fillStyle = rgba(0.05 + rnd() * 0.3);
+          L.fillRect(Math.cos(a) * rad * rx * tip, Math.sin(a) * rad * ry, 0.6 + rnd() * 1.8, 0.6 + rnd() * 1.8);
+        }
+
+        L.globalCompositeOperation = "source-atop";
+        const glow = L.createRadialGradient(0, coreY, 2, 0, coreY, Math.min(rx, ry) * 0.6);
+        glow.addColorStop(0, rgba(0.22));
+        glow.addColorStop(1, rgba(0));
+        L.fillStyle = glow;
+        L.fillRect(-rx * 1.2, -ry * 1.2, rx * 2.4, ry * 2.4);
+        L.globalCompositeOperation = "source-over";
+        L.setTransform(1, 0, 0, 1, 0, 0);
+
+        const mask = document.createElement("canvas");
+        mask.width = W;
+        mask.height = H;
+        const M = mask.getContext("2d");
+        M.translate(cx, cy);
+        M.rotate(rot);
+        M.beginPath();
+        for (let i = 0; i <= 80; i++) {
+          const t = (i / 80) * Math.PI * 2;
+          const tip = 0.72 + 0.28 * ((Math.sin(t) + 1) / 2);
+          const x = Math.cos(t) * rx * tip;
+          const y = Math.sin(t) * ry;
+          if (i === 0) M.moveTo(x, y); else M.lineTo(x, y);
+        }
+        M.closePath();
+        M.fillStyle = "#000";
+        M.fill();
+        M.globalCompositeOperation = "destination-out";
+        for (let i = 0; i < 55; i++) {
+          const a = rnd() * Math.PI * 2;
+          const tip = 0.72 + 0.28 * ((Math.sin(a) + 1) / 2);
+          M.beginPath();
+          M.arc(
+            Math.cos(a) * rx * tip * (0.9 + rnd() * 0.14),
+            Math.sin(a) * ry * (0.9 + rnd() * 0.14),
+            1.2 + rnd() * 4,
+            0, Math.PI * 2
+          );
+          M.fill();
+        }
+        M.setTransform(1, 0, 0, 1, 0, 0);
+
+        ctx.drawImage(layer, 0, 0);
+        ctx.globalCompositeOperation = "destination-in";
+        ctx.drawImage(mask, 0, 0);
+        ctx.globalCompositeOperation = "destination-in";
+        const feather = ctx.createRadialGradient(cx, cy, Math.min(rx, ry) * 0.25, cx, cy, Math.max(rx, ry) * 1.08);
+        feather.addColorStop(0, "rgba(0,0,0,1)");
+        feather.addColorStop(0.75, "rgba(0,0,0,0.95)");
+        feather.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = feather;
+        ctx.fillRect(0, 0, W, H);
+        ctx.globalCompositeOperation = "source-over";
+      }
+
+      function paintFingerprints() {
+        document.querySelectorAll("canvas.fp-stamp").forEach((c) => {
+          drawFingerprint(c, c.dataset.seed || "fp");
+        });
+      }
+
+      function drawCompanySeal(canvas, companyName, bottomText) {
+        const ctx = canvas.getContext("2d");
+        const W = canvas.width;
+        const H = canvas.height;
+        const cx = W / 2;
+        const cy = H / 2;
+        const R = Math.min(W, H) * 0.47;
+        ctx.clearRect(0, 0, W, H);
+
+        const name = String(companyName || "公司名称").replace(/\s+/g, "");
+        const foot = bottomText || "合同专用章";
+        const ink = "#c41e3a";
+
+        ctx.save();
+        ctx.globalAlpha = 0.16;
+        for (let i = 0; i < 240; i++) {
+          const a = Math.random() * Math.PI * 2;
+          const rr = Math.random() * R;
+          ctx.fillStyle = ink;
+          ctx.fillRect(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr, 1.2, 1.2);
+        }
+        ctx.globalAlpha = 1;
+
+        ctx.strokeStyle = ink;
+        ctx.lineWidth = Math.max(5.5, W * 0.03);
+        ctx.beginPath();
+        ctx.arc(cx, cy, R, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.lineWidth = Math.max(1.2, W * 0.006);
+        ctx.beginPath();
+        ctx.arc(cx, cy, R * 0.88, 0, Math.PI * 2);
+        ctx.stroke();
+
+        (function drawStar() {
+          const spikes = 5;
+          const outer = R * 0.26;
+          const inner = outer * 0.38;
+          ctx.beginPath();
+          for (let i = 0; i < spikes * 2; i++) {
+            const rad = i % 2 === 0 ? outer : inner;
+            const a = -Math.PI / 2 + (i * Math.PI) / spikes;
+            const x = cx + Math.cos(a) * rad;
+            const y = cy + Math.sin(a) * rad;
+            if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+          }
+          ctx.closePath();
+          ctx.fillStyle = ink;
+          ctx.fill();
+        })();
+
+        let ring = name;
+        if (ring.length > 20) ring = ring.slice(0, 20);
+        const fontSize = Math.max(12, Math.floor(W * (ring.length <= 8 ? 0.1 : ring.length <= 12 ? 0.082 : ring.length <= 16 ? 0.07 : 0.06)));
+        ctx.font = "bold " + fontSize + "px SimSun, Songti SC, Noto Serif SC, serif";
+        ctx.fillStyle = ink;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        const arcStart = Math.PI * 0.78;
+        const arcEnd = Math.PI * 2.22;
+        const span = arcEnd - arcStart;
+        const radiusText = R * 0.70;
+        const n = Math.max(ring.length, 1);
+        for (let i = 0; i < n; i++) {
+          const t = n === 1 ? 0.5 : i / (n - 1);
+          const ang = arcStart + span * t;
+          const x = cx + Math.cos(ang) * radiusText;
+          const y = cy + Math.sin(ang) * radiusText;
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.rotate(ang + Math.PI / 2);
+          ctx.fillText(ring[i], 0, 0);
+          ctx.restore();
+        }
+
+        const footSize = Math.max(11, Math.floor(W * (foot.length <= 4 ? 0.085 : 0.07)));
+        ctx.font = "bold " + footSize + "px SimSun, Songti SC, Noto Serif SC, serif";
+        ctx.fillText(foot, cx, cy + R * 0.52);
+
+        ctx.globalCompositeOperation = "destination-out";
+        for (let i = 0; i < 30; i++) {
+          const a = Math.random() * Math.PI * 2;
+          ctx.beginPath();
+          ctx.arc(
+            cx + Math.cos(a) * R * (0.92 + Math.random() * 0.08),
+            cy + Math.sin(a) * R * (0.92 + Math.random() * 0.08),
+            0.8 + Math.random() * 2.8,
+            0, Math.PI * 2
+          );
+          ctx.fill();
+        }
+        ctx.globalCompositeOperation = "source-over";
+        ctx.restore();
+      }
+
+      function sealHtml(company, side, kind) {
+        const safe = escapeHtml(company || "公司名称");
+        const cls = kind === "paging"
+          ? ("seal-paging" + (side === "B" ? " seal-paging-b" : ""))
+          : "seal-stamp";
+        const foot = kind === "paging" ? "公章" : "合同专用章";
+        return '<canvas class="' + cls + '" width="260" height="260" data-company="' + safe + '" data-foot="' + foot + '" data-side="' + side + '" aria-hidden="true"></canvas>';
+      }
+
+      function paintSeals() {
+        document.querySelectorAll("canvas.seal-stamp, canvas.seal-paging").forEach((c) => {
+          drawCompanySeal(c, c.dataset.company || "", c.dataset.foot || "合同专用章");
+        });
+      }
+
+
+      function getData() {
+        const isAndroid = els.isAndroid.checked;
+        return {
+          docNo: els.docNo.value.trim(),
+          authorizer: els.authorizer.value.trim(),
+          authorizerCredit: els.authorizerCredit.value.trim(),
+          authorizerSigner: els.authorizerSigner.value.trim(),
+          authorizerId: els.authorizerId.value.trim(),
+          authorizerFont: els.authorizerFont.value,
+          authorizee: els.authorizee.value.trim(),
+          authorizeeCredit: els.authorizeeCredit.value.trim(),
+          authorizeeSigner: els.authorizeeSigner.value.trim(),
+          authorizeeId: els.authorizeeId.value.trim(),
+          authorizeeFont: els.authorizeeFont.value,
+          programName: els.programName.value.trim(),
+          isAndroid,
+          packageName: isAndroid ? els.packageName.value.trim() : "",
+          authDate: els.authDate.value,
+          authDateCN: formatDateCN(els.authDate.value),
+          scanLook: els.scanLook.checked,
+          showFingerprint: els.showFingerprint.checked,
+          showSeal: els.showSeal.checked,
+        };
+      }
+
+      function displayOr(value, placeholder) {
+        if (value) return escapeHtml(value);
+        return `<span class="ph">${escapeHtml(placeholder)}</span>`;
+      }
+
+      function buildLead(data, forHtml) {
+        const a = forHtml ? displayOr(data.authorizer, "授权方公司名称") : (data.authorizer || "授权方公司名称");
+        const b = forHtml ? displayOr(data.authorizee, "被授权方公司名称") : (data.authorizee || "被授权方公司名称");
+        const p = forHtml ? displayOr(data.programName, "程序名称") : (data.programName || "程序名称");
+        let lead = `兹有${a}（下称“授权方”）授权${b}（下称“被授权方”）对程序「${p}」`;
+        if (data.packageName) {
+          const pkg = forHtml ? escapeHtml(data.packageName) : data.packageName;
+          lead += forHtml ? `（包名 <code>${pkg}</code>）` : `（包名 ${pkg}）`;
+        }
+        lead += "开展安全测试、逆向分析及相关全部工作，授权约定如下：";
+        return lead;
+      }
+
+      function hwHtml(name, fontId) {
+        const font = fontById(fontId);
+        if (!name) return `<span class="hw-sign empty">（待签字）</span>`;
+        return `<span class="hw-sign ${font.cssClass}">${escapeHtml(name)}</span>`;
+      }
+
+      function idHtml(idNo, fontId) {
+        const font = fontById(fontId);
+        if (!idNo) return `<span class="sign-id ph">身份证号待填</span>`;
+        return `<span class="sign-id ${font.cssClass}">${escapeHtml(idNo)}</span>`;
+      }
+
+      function fpHtml(name, side) {
+        const seed = `${side}-${name || "empty"}-${Math.floor(hashSeed(name) % 997)}`;
+        return `<canvas class="fp-stamp" width="300" height="420" data-seed="${escapeHtml(seed)}" aria-hidden="true"></canvas>`;
+      }
+
+      function render() {
+        const data = getData();
+        els.packageField.hidden = !data.isAndroid;
+        els.sheet.classList.toggle("scan-look", data.scanLook);
+
+        const dateShow = data.authDateCN
+          ? escapeHtml(data.authDateCN)
+          : `<span class="ph">年 月 日</span>`;
+
+        const leftFp = data.showFingerprint && data.authorizerSigner ? fpHtml(data.authorizerSigner, "L") : "";
+        const rightFp = data.showFingerprint && data.authorizeeSigner ? fpHtml(data.authorizeeSigner, "R") : "";
+        const leftSeal = data.showSeal && data.authorizer ? sealHtml(data.authorizer, "L") : "";
+        const rightSeal = data.showSeal && data.authorizee ? sealHtml(data.authorizee, "R") : "";
+        const pageSealA = data.showSeal && data.authorizer ? sealHtml(data.authorizer, "A", "paging") : "";
+        const pageSealB = data.showSeal && data.authorizee ? sealHtml(data.authorizee, "B", "paging") : "";
+        const art7Seal = data.showSeal
+          ? '双方确认本授权书内容<span class="emph">真实、合法、有效</span>。本授权书上的签字、手印（如有）、身份证号记载及公章（含骑缝章）均为各方公司之正式意思表示，对双方具有约束力。'
+          : '双方确认本授权书内容<span class="emph">真实、合法、有效</span>。本授权书上的签字、手印（如有）及身份证号记载即为各方公司之正式意思表示；双方一致同意可不加盖实体公章，签字完成后即发生效力，对双方具有约束力。';
+
+        els.sheet.innerHTML = `
+          <div class="sheet-inner">
+            <div class="meta-top">
+              <div class="doc-no">编号：${displayOr(data.docNo, "STA-YYYYMMDD-XXX-XXXXXX")}</div>
+              <div class="doc-secret">正本</div>
+            </div>
+            <h1>安全测试授权书</h1>
+            <div class="title-line"></div>
+
+            <div class="parties">
+              <div class="row"><div class="k">授权方</div><div class="v">${displayOr(data.authorizer, "公司名称")}</div></div>
+              <div class="row"><div class="k">信用代码</div><div class="v">${displayOr(data.authorizerCredit, "统一社会信用代码")}</div></div>
+              <div class="row"><div class="k">被授权方</div><div class="v">${displayOr(data.authorizee, "公司名称")}</div></div>
+              <div class="row"><div class="k">信用代码</div><div class="v">${displayOr(data.authorizeeCredit, "统一社会信用代码")}</div></div>
+              <div class="row"><div class="k">目标程序</div><div class="v">${displayOr(data.programName, "程序名称")}${data.packageName ? `（包名 ${escapeHtml(data.packageName)}）` : ""}</div></div>
+            </div>
+
+            <p class="lead">${buildLead(data, true)}</p>
+
+            <h3>一、授权期限</h3>
+            <p>本授权自签署之日起生效，<span class="emph">无固定期限、持续有效</span>（授权方另行书面通知终止的除外）。被授权方可随时、多次开展本授权项下全部活动。</p>
+
+            <h3>二、授权范围与方法</h3>
+            <p>被授权方有权对目标程序及相关组件、服务端、接口、数据与运行环境进行<span class="emph">无限制的反编译、反汇编、静态与动态分析</span>，包括但不限于：</p>
+            <ol>
+              <li><span class="emph">全平台 / 全操作系统</span>：Android、iOS、Windows、macOS、Linux、Web、服务端及各类客户端；</li>
+              <li><span class="emph">全工具链</span>：商业/开源安全与逆向工具，以及 AI 辅助工具（大模型、自动化分析代理等），种类与版本不限；</li>
+              <li><span class="emph">技术手段</span>：解包、反编译、调试、Hook、抓包、漏洞验证、权限与配置审查、通信与本地存储检查、加固/壳绕过研究、协议逆向等；</li>
+              <li><span class="emph">成果与处置</span>：报告、样本、演示及衍生成果的生成、保存、复制、披露、转让及其他处置，均由被授权方自行决定。</li>
+            </ol>
+
+                        <h3>三、商业功能、付费与限制绕过专项授权</h3>
+            <p>就目标程序中已经存在或将来可能存在的各类商业化、计费、会员与权限控制机制，授权方明确、无条件允许被授权方进行<span class="emph">分析、挖掘、复现、绕过、破解及验证</span>，不受次数、手段、环境与成果用途限制，包括但不限于：</p>
+            <ol>
+              <li><span class="emph">会员与订阅</span>：VIP / SVIP / 超级会员、连续包月/包季/包年、试用转正、会员等级与权益校验；</li>
+              <li><span class="emph">内购与虚拟商品</span>：应用内购买（IAP）、皮肤/道具/点券/金币、一次性买断、解锁章节/关卡/功能；</li>
+              <li><span class="emph">充值与支付</span>：余额充值、第三方支付、支付签名校验、订单伪造/重放研究、支付回调与对账逻辑；</li>
+              <li><span class="emph">通话与通信计费</span>：语音/视频通话时长计费、短信/消息条数计费、流量包、坐席/线路费用相关校验；</li>
+              <li><span class="emph">广告与变现</span>：激励广告、去广告特权、广告频控与奖励发放校验；</li>
+              <li><span class="emph">额度与配额</span>：免费次数、每日限额、API 调用额度、存储空间、并发连接数等限制；</li>
+              <li><span class="emph">授权与许可控制</span>：License、激活码、设备绑定、联网鉴权、时间锁、功能开关（Feature Flag）、灰度与远程配置；</li>
+              <li><span class="emph">账号与权益校验</span>：登录态、Token、会话、风控标记、实名/年龄门、地区锁、试用期与过期策略。</li>
+            </ol>
+            <p>被授权方可对上述机制开展本地篡改、内存修改、协议重放、证书替换、逻辑跳过、补丁与 Hook 等研究性操作，并形成报告、PoC、演示与修复建议。授权方确认：此类行为属于本授权范围内的安全测试与逆向分析，<span class="emph">不视为对被授权方的违约、侵权或越权</span>。</p>
+
+            <h3>四、测试环境与生产环境</h3>
+            <p>本授权<span class="emph">不限于测试环境、预发环境、沙箱或隔离环境</span>。被授权方有权在授权方指定或可接触的<span class="emph">生产环境、正式运营环境及其关联系统</span>中开展本授权项下全部活动。授权方确认已充分知悉生产环境测试可能带来的业务中断、数据异常、服务降级等风险，并仍明确允许被授权方在生产环境实施测试、验证与复现。</p>
+
+            <h3>五、责任豁免与损失承担</h3>
+            <p>因被授权方依照本授权书开展测试、分析、验证、复现（包括但不限于漏洞触发、压力验证、权限绕过验证、生产环境操作等）而导致或可能导致的一切后果，均由<span class="emph">授权方自行承担全部责任</span>，被授权方<span class="emph">不承担任何民事、行政、刑事或其他法律责任</span>，亦无须向授权方或任何第三方赔偿。前述后果包括但不限于：</p>
+            <ol>
+              <li>系统宕机、服务不可用、性能下降、数据损坏、业务中断及由此产生的直接或间接经济损失（损失金额不设上限，均由授权方自行承受）；</li>
+              <li>数据泄露、账号冒用、个人信息或重要数据被访问、复制、传输、展示或披露，以及因此可能产生的监管调查、处罚、用户索赔或声誉影响；</li>
+              <li>被授权方在测试中接触、处理、存储或传输用户数据、个人信息、日志与业务数据的行为；授权方确认该等接触已获其概括授权，相关合规义务（含《中华人民共和国个人信息保护法》等）由授权方负责履行与解释；</li>
+              <li>授权方或其关联方、用户、合作伙伴就本授权活动向被授权方提出的任何主张、追索或诉讼——授权方应负责抗辩、和解并承担全部费用，并使被授权方免受损害。</li>
+            </ol>
+            <p>授权方承诺：不得以“超出测试环境”“造成经济损失”“数据泄露”“违反个保法”等任何理由向被授权方主张违约、侵权、赔偿或刑事责任；如第三人向被授权方主张权利，授权方应在接到通知后立即介入并承担全部责任。</p>
+
+            <h3>六、成果归属与处置</h3>
+            <p>本授权活动形成的全部成果，包括但不限于测试报告、漏洞说明、PoC / Exploit 代码与步骤、样本、截图、日志、演示材料、修复建议及任何衍生资料，其权利与处置权归<span class="emph">被授权方</span>。授权方确认：上述成果对双方而言<span class="emph">不具有必须保密或必须付费的商业价值拘束</span>；被授权方可自由保存、删除、公开、转让、丢弃或交由任意第三方使用，授权方亦可自行取用其中内容用于修复或内部改进，均无须向对方支付费用，亦不得就成果归属、付费使用或“漏洞本身归谁”再起争议。</p>
+
+            <h3>七、签章效力与禁止反言</h3>
+            <p>${art7Seal}</p>
+            <p>无论签字人是否为法定代表人，也无论是否另行出具授权委托书，签字人所签均视为已获所在公司充分授权。双方承诺对本授权书<span class="emph">必须认账、不得否认</span>：任何一方不得以“签字人无权代表公司”“未加盖公章”“未加盖公章或印章样式争议”“非法定代表人签署”等理由主张本授权书无效、不成立或可撤销；亦不得据此主张被授权方的测试构成未经授权的非法访问或入侵。如一方事后反悔或不认账，应自行承担全部法律后果，并赔偿因此给对方造成的全部损失。</p>
+
+            <h3>八、其他</h3>
+            <p>本授权书未尽事宜，由双方协商补充；补充约定与本授权书冲突的，以有利于被授权方行使本授权权利及责任豁免者为准。本授权书一式两份，双方各执一份，具有同等效力。</p>
+
+
+            <div class="sign">
+              <div>授权日期：${dateShow}</div>
+              <div class="sign-row">
+                <div class="sign-block">
+                  <div class="label">授权方（签字）：</div>
+                  <div class="org-wrap">
+                    <div class="org">${displayOr(data.authorizer, "公司名称")}</div>
+                    ${leftSeal}
+                  </div>
+                  <div class="sign-area">
+                    <div class="sign-stack">
+                      <div class="sign-ink-row">
+                        ${hwHtml(data.authorizerSigner, data.authorizerFont)}
+                        ${leftFp}
+                      </div>
+                      <div class="sign-print">正楷确认：${data.authorizerSigner ? escapeHtml(data.authorizerSigner) : '<span class="ph">待填</span>'}</div>
+                      <div class="sign-meta">身份证号：</div>
+                      <div>${idHtml(data.authorizerId, data.authorizerFont)}</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="sign-block">
+                  <div class="label">被授权方（签字）：</div>
+                  <div class="org-wrap">
+                    <div class="org">${displayOr(data.authorizee, "公司名称")}</div>
+                    ${rightSeal}
+                  </div>
+                  <div class="sign-area">
+                    <div class="sign-stack">
+                      <div class="sign-ink-row">
+                        ${hwHtml(data.authorizeeSigner, data.authorizeeFont)}
+                        ${rightFp}
+                      </div>
+                      <div class="sign-print">正楷确认：${data.authorizeeSigner ? escapeHtml(data.authorizeeSigner) : '<span class="ph">待填</span>'}</div>
+                      <div class="sign-meta">身份证号：</div>
+                      <div>${idHtml(data.authorizeeId, data.authorizeeFont)}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            ${pageSealA}
+            ${pageSealB}
+          </div>
+        `;
+
+        paintFingerprints();
+        paintSeals();
+      }
+
+      function setMsg(text, ok) {
+        els.msg.textContent = text || "";
+        els.msg.classList.toggle("ok", !!ok);
+      }
+
+      function validate() {
+        const data = getData();
+        if (!data.docNo) return "请填写或随机生成文档编号。";
+        if (!data.authorizer) return "请填写授权方公司名称。";
+        if (!data.authorizerCredit) return "请填写授权方统一社会信用代码。";
+        if (!data.authorizerSigner) return "请填写授权方签字人。";
+        if (!data.authorizerId || data.authorizerId.length !== 18) return "请填写或随机生成授权方签字人身份证号。";
+        if (!data.authorizee) return "请填写被授权方公司名称。";
+        if (!data.authorizeeCredit) return "请填写被授权方统一社会信用代码。";
+        if (!data.authorizeeSigner) return "请填写被授权方签字人。";
+        if (!data.authorizeeId || data.authorizeeId.length !== 18) return "请填写或随机生成被授权方签字人身份证号。";
+        if (!data.programName) return "请填写程序名称。";
+        if (!data.authDate) return "请选择授权日期。";
+        return "";
+      }
+
+      function safeFilename(name) {
+        return String(name).replace(/[\\/:*?"<>|]+/g, "_").replace(/\s+/g, "").slice(0, 40) || "未命名";
+      }
+      function fileBase(data) {
+        return `安全测试授权书-${safeFilename(data.programName)}-${data.authDate}`;
+      }
+
+      const randMap = {
+        docNo: () => { els.docNo.value = randDocNo(els.authDate.value); },
+        authorizer: () => { els.authorizer.value = randCompany(); },
+        authorizerCredit: () => { els.authorizerCredit.value = randCreditCode(); },
+        authorizerSigner: () => { els.authorizerSigner.value = randPerson(); },
+        authorizerId: () => { els.authorizerId.value = randIdNo(); },
+        authorizerFont: () => { els.authorizerFont.value = pick(allFonts()).id; },
+        authorizee: () => { els.authorizee.value = randCompany(); },
+        authorizeeCredit: () => { els.authorizeeCredit.value = randCreditCode(); },
+        authorizeeSigner: () => { els.authorizeeSigner.value = randPerson(); },
+        authorizeeId: () => { els.authorizeeId.value = randIdNo(); },
+        authorizeeFont: () => { els.authorizeeFont.value = pick(allFonts()).id; },
+      };
+
+      function randAll() {
+        Object.keys(randMap).forEach((k) => randMap[k]());
+        let guard = 0;
+        while (els.authorizee.value === els.authorizer.value && guard++ < 8) els.authorizee.value = randCompany();
+        guard = 0;
+        while (els.authorizeeCredit.value === els.authorizerCredit.value && guard++ < 8) els.authorizeeCredit.value = randCreditCode();
+        guard = 0;
+        while (els.authorizeeSigner.value === els.authorizerSigner.value && guard++ < 8) els.authorizeeSigner.value = randPerson();
+        if (!els.programName.value.trim()) {
+          els.programName.value = pick(["星云助手", "方舟管控平台", "青梧客户端", "玄甲安全中枢", "凌波移动端"]);
+        }
+        render();
+        setMsg("已随机填充。", true);
+      }
+
+      function getHtml2Canvas() {
+        return typeof html2canvas === "function" ? html2canvas : null;
+      }
+
+      function getJsPDF() {
+        if (window.jspdf && window.jspdf.jsPDF) return window.jspdf.jsPDF;
+        if (typeof window.jsPDF === "function") return window.jsPDF;
+        return null;
+      }
+
+      function applyScanNoise(canvas) {
+        const ctx = canvas.getContext("2d");
+        const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const d = img.data;
+        for (let i = 0; i < d.length; i += 4) {
+          const n = (Math.random() - 0.5) * 28;
+          d[i] = Math.max(0, Math.min(255, d[i] * 0.96 + 8 + n));
+          d[i + 1] = Math.max(0, Math.min(255, d[i + 1] * 0.94 + 6 + n));
+          d[i + 2] = Math.max(0, Math.min(255, d[i + 2] * 0.90 + 2 + n));
+        }
+        ctx.putImageData(img, 0, 0);
+      }
+
+      function triggerDownload(blob, filename) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1500);
+      }
+
+      async function capturePreviewCanvas() {
+        const h2c = getHtml2Canvas();
+        if (!h2c) throw new Error("本地 html2canvas 未加载，请确认 vendor/html2canvas.min.js 存在");
+        if (document.fonts && document.fonts.ready) await document.fonts.ready;
+        await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+        paintFingerprints();
+        paintSeals();
+        const data = getData();
+        const prevTransform = els.sheet.style.transform;
+        if (els.sheet.classList.contains("scan-look")) els.sheet.style.transform = "none";
+        let canvas;
+        try {
+          canvas = await h2c(els.sheet, {
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: data.scanLook ? "#ebe4d6" : "#fffef9",
+            logging: false,
+          });
+        } finally {
+          els.sheet.style.transform = prevTransform;
+        }
+        if (data.scanLook) applyScanNoise(canvas);
+        return canvas;
+      }
+
+      async function downloadPng() {
+        const err = validate();
+        if (err) { setMsg(err); return; }
+        if (!getHtml2Canvas()) {
+          setMsg("截图组件未加载，请确认 vendor 目录完整。");
+          return;
+        }
+        try {
+          setMsg("正在生成 PNG…", true);
+          const canvas = await capturePreviewCanvas();
+          const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+          triggerDownload(blob, `${fileBase(getData())}.png`);
+          setMsg("PNG 已开始下载。", true);
+        } catch (e) {
+          console.error(e);
+          setMsg("PNG 生成失败：" + (e && e.message ? e.message : "请重试"));
+        }
+      }
+
+      async function downloadPdf() {
+        const err = validate();
+        if (err) { setMsg(err); return; }
+        if (!getHtml2Canvas() || !getJsPDF()) {
+          setMsg("本地 PDF 组件未加载，请确认 vendor 目录完整；或使用「打印」。");
+          return;
+        }
+        const data = getData();
+        try {
+          setMsg("正在生成 PDF…", true);
+          const canvas = await capturePreviewCanvas();
+          const JsPDF = getJsPDF();
+          const img = canvas.toDataURL("image/jpeg", 0.93);
+          const pdf = new JsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+          const pageW = pdf.internal.pageSize.getWidth();
+          const pageH = pdf.internal.pageSize.getHeight();
+          const ratio = Math.min(pageW / canvas.width, pageH / canvas.height);
+          const w = canvas.width * ratio;
+          const h = canvas.height * ratio;
+          pdf.addImage(img, "JPEG", (pageW - w) / 2, (pageH - h) / 2, w, h);
+          pdf.save(`${fileBase(data)}.pdf`);
+          setMsg("PDF 已开始下载。", true);
+        } catch (e) {
+          console.error(e);
+          setMsg("PDF 生成失败，可改用「打印」。");
+        }
+      }
+
+      function printSheet() {
+        const err = validate();
+        if (err) { setMsg(err); return; }
+        setMsg("");
+        window.print();
+      }
+
+      els.authDate.value = todayISO();
+      els.docNo.value = randDocNo(els.authDate.value);
+
+      const bindInputs = [
+        els.docNo, els.authorizer, els.authorizerCredit, els.authorizerSigner, els.authorizerId, els.authorizerFont,
+        els.authorizee, els.authorizeeCredit, els.authorizeeSigner, els.authorizeeId, els.authorizeeFont,
+        els.programName, els.packageName, els.authDate, els.isAndroid,
+        els.scanLook, els.showFingerprint, els.showSeal,
+      ];
+      bindInputs.forEach((el) => {
+        el.addEventListener("input", render);
+        el.addEventListener("change", render);
+      });
+
+      document.querySelectorAll("[data-rand]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const key = btn.getAttribute("data-rand");
+          if (randMap[key]) {
+            randMap[key]();
+            render();
+            setMsg("已生成。", true);
+          }
+        });
+      });
+
+      $("btnRandAll").addEventListener("click", randAll);
+      $("btnPng").addEventListener("click", downloadPng);
+      $("btnPdf").addEventListener("click", downloadPdf);
+      $("btnPrint").addEventListener("click", printSheet);
+
+      $("btnImportFont").addEventListener("click", () => $("fontImport").click());
+      $("fontImport").addEventListener("change", async (ev) => {
+        const files = [...(ev.target.files || [])];
+        if (!files.length) return;
+        let ok = 0;
+        for (const file of files) {
+          try {
+            const buf = await file.arrayBuffer();
+            const id = "custom_" + Date.now() + "_" + Math.floor(Math.random() * 9999);
+            const family = "custom-" + id;
+            const blobUrl = URL.createObjectURL(new Blob([buf]));
+            const face = new FontFace(family, `url(${blobUrl})`);
+            await face.load();
+            document.fonts.add(face);
+            const item = {
+              id,
+              label: file.name.replace(/\.[^.]+$/, "") + " ·导入",
+              cssClass: "font-" + id,
+              loadName: family,
+              group: "已导入",
+              blobUrl,
+            };
+            customFonts.push(item);
+            injectFontFace(item);
+            ok++;
+          } catch (e) {
+            console.warn("font import failed", file.name, e);
+          }
+        }
+        rebuildFontSelects();
+        if (ok) {
+          const last = customFonts[customFonts.length - 1];
+          els.authorizerFont.value = last.id;
+          els.authorizeeFont.value = last.id;
+          render();
+          setMsg("已导入 " + ok + " 个字体，可在下拉框「已导入」中选择。", true);
+        } else {
+          setMsg("导入失败：请换 .ttf / .otf / .woff2 再试。", false);
+        }
+        ev.target.value = "";
+      });
+
+      render();
+
+      if (document.fonts && document.fonts.load) {
+        Promise.all(
+          allFonts().map((f) => document.fonts.load(`40px "${f.loadName}"`).catch(() => null))
+        ).then(() => { rebuildFontSelects(); render(); }).catch(() => {});
+      }
+
+    })();
+  </script>
+</body>
+</html>

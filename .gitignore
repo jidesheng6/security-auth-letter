@@ -1,0 +1,16 @@
+# 本地临时与备份
+backup-*/
+_patch_*.py
+__pycache__/
+.DS_Store
+Thumbs.db
+
+# 用户自备字体（勿公开上传商业字库）
+fonts/custom/*
+!fonts/custom/README.txt
+!fonts/custom/.gitkeep
+!fonts/custom/manifest.json
+
+# 未压缩源字体
+fonts/*.ttf
+fonts/*.otf
